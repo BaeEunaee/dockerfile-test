@@ -2,23 +2,23 @@
 FROM ubuntu:20.04
 
 # 설치 시 사용자 입력을 요구하는 것을 방지하는 설정
+ENV TZ Asia/Seoul
 ENV DEBIAN_FRONTEND=noninteractive
+ENV TOMCAT_VERSION=9.0.89
+ENV CATALINA_HOME=/opt/tomcat
 
 # 패키지 설치
-RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
-    wget \
-    unzip \
-    && apt-get clean
+RUN apt-get update && apt-get install -y openjdk-11-jdk
 
 # Tomcat 다운로드 & 설치
-RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.56/bin/apache-tomcat-9.0.56.tar.gz -O /tmp/tomcat.tar.gz \
-    && mkdir /opt/tomcat \
-    && tar -xvf /tmp/tomcat.tar.gz -C /opt/tomcat --strip-components=1 \
-    && rm /tmp/tomcat.tar.gz
+RUN apt-get install -y wget && \
+    wget https://downloads.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    tar -xzf apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    mv apache-tomcat-${TOMCAT_VERSION} ${CATALINA_HOME} && \
+    rm apache-tomcat-${TOMCAT_VERSION}.tar.gz
 
-# JSP 파일을 Tomcat의 웹 애플리케이션 디렉토리에 복사
-COPY webapps/ROOT /opt/tomcat/webapps/ROOT
+# JSP 파일을 Tomcat의 웹 애플리케이션 디렉토리에 복사 
+COPY webapps/ROOT ${CATALINA_HOME}/webapps/ROOT
 
 # Tomcat 포트 설정
 EXPOSE 8080
